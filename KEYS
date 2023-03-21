@@ -1,0 +1,64 @@
+    #Initialised Register values are defined on 13.1 pg. 306
+    # Mostly    : Sleep IN, Display OFF, Idle OFF, All Pixels OFF, Col_End 0x013F Row_End 0x01DF
+    #           : Color_pixel_format 18Bit/Pix
+
+    # Command constants from ILI9488 datasheet (Limited)
+    # * Can be used in short Packet (no param)
+    # ** Can be used in short Packet (1 param)
+    # WRITE - NO PARAM                                    Note  Ref
+    NO_OP           = const(0x00)   # No Operation          *   5.2.1
+    SOFT_RESET      = const(0x01)   # Software Reset        *   5.2.2
+    SLEEP_IN        = const(0x10)   # Enter Sleep           *   5.2.12
+    SLEEP_OUT       = const(0x11)   # Leave Sleep           *   5.2.13
+    ## ??
+    PIXELS_ALL_OFF  = const(0x22)   # Turn all pixels off       5.2.18
+    PIXELS_ALL_ON   = const(0x23)   # Turn all pixels on        5.2.19
+    ## CONFIGURATION?
+    PIXELS_FORMAT   = const(0x3A)   # Colour format             5.2.34 DBI[2:0], DPI[2:0] -> 101 for 565 --> b'01010101'
+    CONFIG_BUFFER   = const(0x36)   # Buffer configuration      5.2.30  
+    DISPLAY_FUNC    = const(0xB6)   # Display Op Mode           5.3.7
+        # ROW | COL | EX | VERT REF | HORIZ REF | X | X
+
+    ## OPERATIONAL MODES
+    MODE_PARTIAL    = const(0x12)   # Enter Partial         *   5.2.14 (Described in 0x30, )
+    MODE_NORMAL     = const(0x13)   # Enter Normal          *   5.2.15 (Disables Scroll/partial mode)
+    ## DISPLAY MODES
+    DISPLAY_OFF     = const(0x28)   # Turn Display off      *   5.2.20 (Screen still lit, memory not drawn)
+    DISPLAY_ON      = const(0x29)   # Turn Display on       *   5.2.21 
+    ## IDLE MODES
+    IDLE_ON         = const(0x39)   # Enter Idle            *   5.2.33 (Nukes colour density to save power)
+    IDLE_OFF        = const(0x38)   # Leave Idle            *   5.2.32 (Full colour density)
+    # -- 
+    # WRITE - X PARAM
+    GAMMA_SET       = const(0x26)   # Set Gamma             **
+    GAMMA_POS       = const(0xE0)   # Positive gamma control    5.3.33 
+        #WHAT? I have no idea what the maps at circa page 314 mean so defaults I guess???
+    GAMMA_NEG       = const(0xE1)   # Negative gamma control    5.3.34 
+        #WHAT IS THISS?
+    ADDR_SET_COL    = const(0x2A)   # Set Col               *
+    ADDR_SET_ROW    = const(0x2B)   # Set Row/Page          *
+    WRITE_MEM       = const(0x2C)   # Write Memory          *   5.2.24
+    WRITE_BRIGHT    = const(0x51)   # Write Brightness          5.2.39 (0x00 Lowest, 0xFF Highest)
+    # --
+    # CONTROLS
+    ## POWER
+    POWER_1         = const(0xC0)   # Positive Gamma
+    POWER_2         = const(0xC1)   # Step-up factor???
+        # 
+    POWER_3         = const(0xC2)   # Normal mode? 1/4/5        5.3.14 
+        # This is a frequency in hertz? Going to try setting both to 1. DCA0[2:0] -> 011 DCA1[2:0] -> 001 --> b'0_011_0_001'
+    POWER_4         = const(0xC3)   # Idle Mode?                5.3.15
+        # This is a frequency in hertz? Going to try setting both to 1. DCA0[2:0] -> 011 DCA1[2:0] -> 001 --> b'0_011_0_001'
+    POWER_5         = const(0xC4)   # Partial Mode?             5.3.16
+    ## VCOM?
+    VCOM_CONTROL    = const(0xC5)   # Wtf is a vcom?            5.3.17
+        # I have no idea what a vcom is but this helps: https://www.ti.com/lit/an/slaae46/slaae46.pdf?ts=1679290213444&ref_url=https%253A%252F%252Fwww.google.com%252F
+        # Midpoint is -1 so let's go with that? b'01000000'
+    #DIM VARIABLES
+    # 101 for DBI[2:0] forRGB565
+    ### EXTENDED
+    FRAME_RATE      = const(0xB1)   #                           5.3.2
+    POWER_ON        = const(0xED)   #Where the fuck does this come from?
+    CABC_9          = const(0xCF)   #???                        5.3.26
+
+    BRIGHT_DIM      = const(0x44)
