@@ -5,11 +5,9 @@
 # A simple Python wrapper for the ILI4988 driver bound to the SPI interface IM[2:0] 101 for chipsets such as
 # those ubuqituous ones on Aliexpress.
 
-from c565_chunk.c565_chunk import c565_chunk_image
+from c565_chunk.c565_chunk import c565_chunk_image, c565_chunk
 from time import sleep
 from math import floor
-
-
 import ustruct
 
 PICO_EXPERIMENTAL_MAX_BUFFER = 60_000 #Bytes, give/take memory. (42512 with earlier verison of this build)
@@ -139,7 +137,7 @@ class Display():
         #Set Pixel format
         self.write_command(self.PIXELS_FORMAT, int(b'01010101', 2))
         #Orientation
-        self.write_command(self.CONFIG_BUFFER, int(b"0101100",2)) 
+        self.write_command(self.CONFIG_BUFFER, int(b"01101000",2)) 
 
     def clear(self):
         self.write_buffer(0,0, self.width, self.height, self.buffer)
@@ -159,19 +157,38 @@ class Display():
 
     #Drawing Functions
 
+    # Draw Buffer
+
     def write_buffer(self, rect, buffer):
         self.write_buffer(rect.x, rect.y, rect.width, rect.height, buffer)
 
     def write_buffer(self, x, y, width, height, buffer):
-        self.write_command(self.ADDR_SET_COL, *ustruct.pack(">HH", x, x+width))
-        self.write_command(self.ADDR_SET_ROW, *ustruct.pack(">HH", y, y+height ))
+        self.write_command(self.ADDR_SET_ROW, *ustruct.pack(">HH", x, x+width-1))
+        self.write_command(self.ADDR_SET_COL, *ustruct.pack(">HH", y, y+height-1))
         self.write_command(self.WRITE_MEM)
         self.write_data(buffer)
-        print("Writing buffer (%i, %i, %i, %i)", x, y, width, height)
+    
+    # Draw c565 Chunk
+
+    def draw_c565_chunk(self, chunk: c565_chunk):
+        self.write_buffer(chunk.get_image_x(), chunk.get_image_y(), chunk.width, chunk.height, chunk.buffer)
+        print(chunk)
+
+    # Draw Buffer -> Draw c565 Image
+
+    def draw_c565_image(self, path):
+        image = c565_chunk_image()
+        image.read_from_image_file(path)
+        image.iterate_with_c565chunks( lambda chunk: self.draw_c565_chunk(chunk))
+        #Dispose of the image
+        del image
+
+    # Draw Pixel
 
     def draw_pixel(self, x, y, colour):
         self.write_buffer(x, y, 0, 0, colour.to_bytes(2, 'big'))
     
+    # Draw Rect
     def fill_rectangle(self, rect, color):
         buffer = color.to_bytes(2, "big") * rect.width * rect.height
         self.write_buffer(rect.x, rect.y, rect.width, rect.height, buffer)

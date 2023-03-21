@@ -1,4 +1,4 @@
-# ILI4988_micropython
+# ILI9488 Micropython Driver
 A small driver for the TFT ILI4988 display. 
 
 # REFERENCE
