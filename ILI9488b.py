@@ -102,7 +102,7 @@ class Display():
         #Set Pixel format
         self.write_command(self.PIXELS_FORMAT, int(b'01010101', 2))
         #Orientation
-        self.write_command(self.CONFIG_BUFFER, int(b"0001000",2)) 
+        self.write_command(self.CONFIG_BUFFER, int(b"01101000",2)) 
 
     def clear(self):
         self.write_buffer(0,0, self.width, self.height, self.buffer)
