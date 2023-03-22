@@ -1,3 +1,6 @@
 [submodule "c565_chunk"]
 	path = c565_chunk
 	url = https://github.com/L3pu5/c565_chunk
+[submodule "bnuuyDrivers_micropython"]
+	path = bnuuyDrivers_micropython
+	url = https://github.com/L3pu5/bnuuyDrivers_micropython

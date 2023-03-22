@@ -6,6 +6,7 @@
 # those ubuqituous ones on Aliexpress.
 
 from c565_chunk.c565_chunk import c565_chunk_image, c565_chunk
+from bnuuyDrivers_micropython.RECTANGLE import RECTANGLE
 from time import sleep
 from math import floor
 import ustruct
@@ -15,46 +16,7 @@ PICO_EXPERIMENTAL_MAX_BUFFER = 60_000 #Bytes, give/take memory. (42512 with earl
 #565 RGBcolour 2 byte datastructure
 def color565(r,g,b):
     return (r & 0xf8) << 8 | (g & 0xfc) << 3 | b >> 3
-
-#Rectangle Helper class
-class RECTANGLE():
-    x = 0
-    y = 0
-    xf = 0
-    yf = 0
-    width = 0
-    height = 0
     
-    def __str__(self):
-        return f"({self.x}, {self.y} -> {self.xf}, {self.yf} : {self.width} x {self.height} => {self.width*self.height} :: BUFF => {self.width*self.height*2})"
-
-    def __init__(self, xi, yi, xf, yf):
-        #FORCE lowerbound corners, xy
-        if(xf < xi):
-            self.x = xf
-            self.xf = xi
-        else:
-            self.x = xi
-            self.xf = xf
-        if(yf < yi):
-            self.y = yf
-            self.yf = yi
-        else:
-            self.y = yi
-            self.yf = yf
-        self.width = self.xf-self.x
-        self.height = self.yf-self.y
-
-    def from_bounds(xi, yi, xf, yf):
-        return RECTANGLE(xi, yi, xf, yf)
-    
-    def from_dimensions(xi, yi, width, height):
-        return RECTANGLE(xi, yi, xi+width, yi+height)
-    
-    def buffer_cost_c565(self):
-        return self.height * self.width * 2
-
-
 class Display():
 
     #Initialised Register values are defined on 13.1 pg. 306
@@ -108,6 +70,9 @@ class Display():
         self.height = height
         self.buffer = b""
         #Set default pin values
+        self.cs.init(self.cs.OUT, value=1)
+        self.dc.init(self.dc.OUT, value=0)
+        self.reset.init(self.reset.OUT, value=1)
         cs.value(1)
         dc.value(0)
         rst.value(1)
@@ -137,7 +102,7 @@ class Display():
         #Set Pixel format
         self.write_command(self.PIXELS_FORMAT, int(b'01010101', 2))
         #Orientation
-        self.write_command(self.CONFIG_BUFFER, int(b"01101000",2)) 
+        self.write_command(self.CONFIG_BUFFER, int(b"0001000",2)) 
 
     def clear(self):
         self.write_buffer(0,0, self.width, self.height, self.buffer)
